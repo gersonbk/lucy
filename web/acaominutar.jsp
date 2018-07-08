@@ -1,3 +1,5 @@
+<%@page import="br.tjsc.jus.processo.model.Processo"%>
+<%@page import="br.tjsc.jus.processo.model.ProcessoDAO"%>
 <%@page import="br.tjsc.jus.processo.model.Minuta"%>
 <%@page import="br.tjsc.jus.processo.model.MinutaDAO"%>
 <%@page import="java.util.List"%>
@@ -27,16 +29,42 @@
                         <%@include file="cabecalho.jsp" %>
 			<section id="main" class="wrapper">
 				<div class="container">
+                                    <a href="#" onclick="history.go(-1)">Voltar</a>
+                                    </br>
                                     <table>    
                                     <%
                                     String id = request.getParameter("id");
+                                    String cdProcesso = request.getParameter("cdprocesso");
                                     MinutaDAO dao = new MinutaDAO();
+                                    ProcessoDAO processoDAO = new ProcessoDAO();
                                     Minuta minuta = dao.getPorId(Integer.parseInt(id));
                                     //String minutaStr = new String(minuta.getDocumento());
                                     String minutaStr = minuta.getDocumento();
+                                    Processo processo = processoDAO.getPorId(cdProcesso);
+                                    out.print("<b>"+minuta.getNmminuta()+"</b>");
+                                    minutaStr = minutaStr.replace("[$NMPESSOAATIVA]", processo.getNmpessoaativa());
+                                    minutaStr = minutaStr.replace("[$NMPESSOAPASSIVA]", processo.getNmpessoapassiva());
                                     
-                                    out.print(minuta.getNmminuta());
-                                    out.print("<td><span style=\"white-space: pre-line\">"+minutaStr+"</span></td>");
+                                    char[] caracteres = minutaStr.toCharArray();
+                                    StringBuilder strTexto = new StringBuilder();
+                                    StringBuilder strRegra = new StringBuilder();
+                                    boolean regra = false;
+                                    for(int i = 0; i < caracteres.length; i++){
+                                        if(caracteres[i] == ']' && regra){
+                                            regra = false;
+                                            strTexto.append(caracteres[i]);
+                                            strTexto.append("Confirmar Regra? <b>Sim</b> ou <b>Não</b>");
+                                            continue;
+                                        } else if(caracteres[i] == '[' && caracteres[i+1] == '$'
+                                           && caracteres[i+2] == 'S' && caracteres[i+3] == 'e'){
+                                            i = i + 3;
+                                            regra = true;
+                                        }
+                                        strTexto.append(caracteres[i]);
+                                    }
+                                    
+                                    
+                                    out.print("<td><span style=\"white-space: pre-line\">"+strTexto.toString()+"</span></td>");
                                     %>    
                                     
                                     </table>

@@ -20,7 +20,7 @@ public abstract class BaseDAO <A, B> {
     
 
     public A getPorId(B id){
-        return (A)em.createQuery("Select a from "+classe+" a where a."+nomeId+" = " + id).getSingleResult();
+        return (A)em.createQuery("Select a from "+classe+" a where a."+nomeId+" = '" + id + "'").getSingleResult();
     }
     
     public List<A> listarTodos()  {
